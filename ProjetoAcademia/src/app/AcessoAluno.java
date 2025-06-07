@@ -6,7 +6,7 @@ import java.util.List;
 
 public class AcessoAluno{
 
-    public List<Aluno> buscarPorNome(String termo){
+	/*public List<Aluno> buscarPorNome(String termo){
         List<Aluno> alunos = new ArrayList<>();
         String sql = "SELECT id, nome FROM aluno WHERE nome ILIKE ? ORDER BY nome";
 
@@ -31,15 +31,16 @@ public class AcessoAluno{
 
     public List<Aluno> listarTodos(){
         List<Aluno> alunos = new ArrayList<>();
-        String sql = "SELECT nome, id FROM aluno ORDER BY nome";
+        String sql = "SELECT * FROM aluno ORDER BY nome";
 
         try (Connection conn = DatabaseConn.conectar();
              Statement ps = conn.createStatement();
              ResultSet rs = ps.executeQuery(sql)){
 
             while (rs.next()){
-            	String nome = rs.getString("nome");
             	int id = rs.getInt("id");
+            	String nome = rs.getString("nome");
+            	
                 alunos.add(new Aluno(id, nome));
             }
 
@@ -48,8 +49,49 @@ public class AcessoAluno{
         }
 
         return alunos;
-    }
+    }*/
     
+	public List<Aluno> listarAlunosComEndereco() {
+	    List<Aluno> alunos = new ArrayList<>();
+	    String sql = """
+	        SELECT a.id AS aluno_id, a.nome, a.telefone, a.telefone_emergencia, a.tipo_treino, e.rua, e.numero, e.bairro, e.cep, e.complemento
+	        FROM aluno a
+	        JOIN endereco e ON a.endereco_id = e.id
+	        ORDER BY a.nome
+	    """;
+
+	    try (Connection conn = DatabaseConn.conectar();
+	         PreparedStatement ps = conn.prepareStatement(sql);
+	         ResultSet rs = ps.executeQuery()) {
+
+	        while (rs.next()) {
+	            Endereco endereco = new Endereco(
+	                rs.getString("rua"),
+	                rs.getString("numero"),
+	                rs.getString("bairro"),
+	                rs.getString("cep"),
+	                rs.getString("complemento")
+	            );
+
+	            Aluno aluno = new Aluno(
+	                rs.getInt("aluno_id"),
+	                rs.getString("nome"),
+	                rs.getString("telefone"),
+	                rs.getString("telefone_emergencia"),
+	                rs.getString("tipo_treino"),
+	                endereco
+	            );
+
+	            alunos.add(aluno);
+	        }
+
+	    } catch (SQLException e) {
+	        System.err.println("Erro ao listar alunos com endereço: " + e.getMessage());
+	    }
+
+	    return alunos;
+	}
+	
     public void inserirAluno(Aluno aluno, int endereco_id){
     	String sqlAluno = "INSERT INTO aluno (nome, telefone, telefone_emergencia, tipo_treino, endereco_id) VALUES (?, ?, ?, ?, ?)";
         
@@ -79,6 +121,27 @@ public class AcessoAluno{
             stmt.setString(3, endereco.getBairro());
             stmt.setString(4, endereco.getCep());
             stmt.setString(5, endereco.getComplemento());
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erro ao buscar endereço: " + e.getMessage());
+        }
+
+        return -1; // não encontrado
+    }
+    
+    public int buscarEnderecoPorID(Endereco endereco) {
+        String sql = "SELECT e.* FROM aluno a JOIN endereco e ON a.endereco_id = e.id WHERE id = ?";
+        
+        try (Connection conn = DatabaseConn.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, endereco.getRua());
 
             ResultSet rs = stmt.executeQuery();
 
