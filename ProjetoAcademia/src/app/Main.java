@@ -27,6 +27,9 @@ public class Main{
             	System.out.println("Treino que realiza: ");
             	String tipoT = scanner.nextLine();
             	
+            	System.out.println("Problemas que possui: ");
+            	String problem = scanner.nextLine();
+            	
             	 // Pede dados do endereço
                 System.out.print("Rua: ");
                 String rua = scanner.nextLine();
@@ -45,7 +48,7 @@ public class Main{
                 
              // Cria os objetos Aluno e Endereco
                 Endereco endereco = new Endereco(rua, numero, bairro, cep, complemento);
-                Aluno aluno = new Aluno(nome, tel, telE, tipoT, endereco);
+                Aluno aluno = new Aluno(nome, tel, telE, tipoT, problem, endereco);
 
                 int x = AA.buscarEndereco(endereco);
                 if(x == -1) {

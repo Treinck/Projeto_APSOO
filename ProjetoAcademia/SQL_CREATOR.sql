@@ -3,9 +3,6 @@
 -- Caso queira criar o banco (roda só uma vez)
 -- CREATE DATABASE ACADEMIA;
 
---Caso use o terminal
---\c ACADEMIA
-
 -- Tabela endereco
 CREATE TABLE endereco (
   id SERIAL PRIMARY KEY,

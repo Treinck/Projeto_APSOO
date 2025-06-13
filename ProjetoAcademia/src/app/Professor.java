@@ -1,34 +1,28 @@
 package app;
 
-public class Aluno{
+public class Professor{
     private int id;
     private String nome;
     private String telefone;
     private String telefoneEmergencia;
-    private String tipoTreino;
-    private String problemas;
     private Endereco e;
 
-    public Aluno(int id, String nome, String telefone, String tE, String tipoTreino, String problemas, Endereco end){
+    public Professor(int id, String nome, String telefone, String tE, Endereco end){
         this.id = id;
         this.nome = nome;
         this.telefone = telefone;
         this.telefoneEmergencia = tE;
-        this.tipoTreino = tipoTreino;
-        this.problemas = problemas;
         this.e = end;
     }
     
-    public Aluno(String nome, String telefone, String tE, String tipoTreino, String problemas, Endereco end){
+    public Professor(String nome, String telefone, String tE, Endereco end){
         this.nome = nome;
         this.telefone = telefone;
         this.telefoneEmergencia = tE;
-        this.tipoTreino = tipoTreino;
-        this.problemas = problemas;
         this.e = end;
     }
     
-    public Aluno(int id, String nome) {
+    public Professor(int id, String nome) {
     	this.id = id;
     	this.nome = nome;
     }
@@ -49,14 +43,6 @@ public class Aluno{
         this.nome = nome;
     }
     
-    public String getProblemas(){
-        return problemas;
-    }
-
-    public void setProblemas(String problemas){
-        this.problemas = problemas;
-    }
-
     public String getTelefone(){
         return telefone;
     }
@@ -71,14 +57,6 @@ public class Aluno{
 
     public void setTelefoneEmergencia(String telefoneEmergencia){
         this.telefoneEmergencia = telefoneEmergencia;
-    }
-
-    public String getTipoTreino(){
-        return tipoTreino;
-    }
-
-    public void setTipoTreino(String tipoTreino){
-        this.tipoTreino = tipoTreino;
     }
     
     public Endereco getEndereco(){

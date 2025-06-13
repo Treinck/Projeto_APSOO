@@ -4,38 +4,38 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AcessoAluno{
+public class AcessoProfessor{
 
-	public List<Aluno> buscarPorNome(String termo){
-        List<Aluno> alunos = new ArrayList<>();
-        String sql = "SELECT id, nome FROM aluno WHERE nome ILIKE ? ORDER BY nome";
+	public List<Professor> buscarPorNome(String termo){
+        List<Professor> profs = new ArrayList<>();
+        String sql = "SELECT id, nome FROM professor WHERE nome ILIKE ? ORDER BY nome";
 
         try (Connection conn = DatabaseConn.conectar();
-             PreparedStatement psAluno = conn.prepareStatement(sql)){
+             PreparedStatement psProf = conn.prepareStatement(sql)){
 
-            psAluno.setString(1, termo + "%"); // Começa com o termo (case-insensitive)
-            ResultSet rs = psAluno.executeQuery();
+            psProf.setString(1, termo + "%"); // Começa com o termo (case-insensitive)
+            ResultSet rs = psProf.executeQuery();
 
             while (rs.next()){
             	String nome = rs.getString("nome");
             	int id = rs.getInt("id");
-                alunos.add(new Aluno(id, nome));
+                profs.add(new Professor(id, nome));
             }
 
         } catch (SQLException e){
             System.err.println("Erro na busca: " + e.getMessage());
         }
 
-        return alunos;
+        return profs;
     }
-	
-	public List<Aluno> listarAlunosComEndereco() {
-	    List<Aluno> alunos = new ArrayList<>();
+    
+	public List<Professor> listarProfessoresComEndereco() {
+	    List<Professor> profs = new ArrayList<>();
 	    String sql = """
-	        SELECT a.id AS aluno_id, a.nome, a.telefone, a.telefone_emergencia, a.tipo_treino, a.problemas, e.rua, e.numero, e.bairro, e.cep, e.complemento
-	        FROM aluno a
-	        JOIN endereco e ON a.endereco_id = e.id
-	        ORDER BY a.nome
+	        SELECT p.id AS professor_id, p.nome, p.telefone, p.telefone_emergencia, e.rua, e.numero, e.bairro, e.cep, e.complemento
+	        FROM professor p
+	        JOIN endereco e ON p.endereco_id = e.id
+	        ORDER BY p.nome
 	    """;
 
 	    try (Connection conn = DatabaseConn.conectar();
@@ -51,42 +51,38 @@ public class AcessoAluno{
 	                rs.getString("complemento")
 	            );
 
-	            Aluno aluno = new Aluno(
-	                rs.getInt("aluno_id"),
+	            Professor professor = new Professor(
+	                rs.getInt("professor_id"),
 	                rs.getString("nome"),
 	                rs.getString("telefone"),
 	                rs.getString("telefone_emergencia"),
-	                rs.getString("tipo_treino"),
-	                rs.getString("problemas"),
 	                endereco
 	            );
 
-	            alunos.add(aluno);
+	            profs.add(professor);
 	        }
 
 	    } catch (SQLException e) {
-	        System.err.println("Erro ao listar alunos com endereço: " + e.getMessage());
+	        System.err.println("Erro ao listar professores com endereço: " + e.getMessage());
 	    }
 
-	    return alunos;
+	    return profs;
 	}
 	
-    public void inserirAluno(Aluno aluno, int endereco_id){
-    	String sqlAluno = "INSERT INTO aluno (nome, telefone, telefone_emergencia, tipo_treino, problemas, endereco_id) VALUES (?, ?, ?, ?, ?, ?)";
+    public void inserirProfessor(Professor professor, int endereco_id){
+    	String sqlProfessor = "INSERT INTO professor (nome, telefone, telefone_emergencia, endereco_id) VALUES (?, ?, ?, ?)";
         
     	try (Connection conn = DatabaseConn.conectar();
-             PreparedStatement psAluno = conn.prepareStatement(sqlAluno)){
+             PreparedStatement psProfessor = conn.prepareStatement(sqlProfessor)){
 
-            psAluno.setString(1, aluno.getNome());
-            psAluno.setString(2, aluno.getTelefone());
-            psAluno.setString(3, aluno.getTelefoneEmergencia());
-            psAluno.setString(4, aluno.getTipoTreino());
-            psAluno.setString(5, aluno.getProblemas());
-            psAluno.setInt(6, endereco_id);
-            psAluno.executeUpdate();
+            psProfessor.setString(1, professor.getNome());
+            psProfessor.setString(2, professor.getTelefone());
+            psProfessor.setString(3, professor.getTelefoneEmergencia());
+            psProfessor.setInt(4, endereco_id);
+            psProfessor.executeUpdate();
 
             } catch (SQLException e){
-                System.err.println("Erro ao inserir aluno: " + e.getMessage());
+                System.err.println("Erro ao inserir professor: " + e.getMessage());
             }
     }
     
@@ -115,13 +111,13 @@ public class AcessoAluno{
         return -1; // não encontrado
     }
    
-    public void inserirAlunoComEndereco(Aluno aluno, Endereco endereco) throws SQLException{
+    public void inserirProfessorComEndereco(Professor professor, Endereco endereco) throws SQLException{
         String sqlEndereco = "INSERT INTO endereco (rua, numero, bairro, cep, complemento) VALUES (?, ?, ?, ?, ?) RETURNING id";
-        String sqlAluno = "INSERT INTO aluno (nome, telefone, telefone_emergencia, tipo_treino, problemas, endereco_id) VALUES (?, ?, ?, ?, ?, ?)";
+        String sqlProfessor = "INSERT INTO professor (nome, telefone, telefone_emergencia, endereco_id) VALUES (?, ?, ?, ?)";
 
         Connection conn = null;
         PreparedStatement psEndereco = null;
-        PreparedStatement psAluno = null;
+        PreparedStatement psProfessor = null;
         ResultSet rs = null;
 
         try{
@@ -140,15 +136,13 @@ public class AcessoAluno{
             if (rs.next()) {
                 int enderecoId = rs.getInt(1);
 
-                //Insere aluno com o endereco_id
-                psAluno = conn.prepareStatement(sqlAluno);
-                psAluno.setString(1, aluno.getNome());
-                psAluno.setString(2, aluno.getTelefone());
-                psAluno.setString(3, aluno.getTelefoneEmergencia());
-                psAluno.setString(4, aluno.getTipoTreino());
-                psAluno.setString(5, aluno.getProblemas());
-                psAluno.setInt(6, enderecoId);
-                psAluno.executeUpdate();
+                //Insere professor com o endereco_id
+                psProfessor = conn.prepareStatement(sqlProfessor);
+                psProfessor.setString(1, professor.getNome());
+                psProfessor.setString(2, professor.getTelefone());
+                psProfessor.setString(3, professor.getTelefoneEmergencia());
+                psProfessor.setInt(4, enderecoId);
+                psProfessor.executeUpdate();
 
                 conn.commit(); //confirma a transação
             } else{
@@ -163,13 +157,13 @@ public class AcessoAluno{
         }finally{
             if (rs != null) rs.close();
             if (psEndereco != null) psEndereco.close();
-            if (psAluno != null) psAluno.close();
+            if (psProfessor != null) psProfessor.close();
             if (conn != null) conn.close();
         }
     }
     
-    public void removerAluno(int x) {
-    	String sql = "DELETE FROM aluno WHERE id = ?";
+    public void removerProfessor(int x) {
+    	String sql = "DELETE FROM professor WHERE id = ?";
 
         try (Connection conn = DatabaseConn.conectar();
              PreparedStatement ps = conn.prepareStatement(sql)){
@@ -178,7 +172,7 @@ public class AcessoAluno{
             ps.executeUpdate();
 
             } catch (SQLException e){
-                System.err.println("Erro ao remover o aluno: " + e.getMessage());
+                System.err.println("Erro ao remover o professor: " + e.getMessage());
             }
     }
 }
