@@ -31,39 +31,20 @@ public class Professor{
         return id;
     }
 
-    public void setId(int id){
-        this.id = id;
-    }
-
     public String getNome(){
         return nome;
-    }
-
-    public void setNome(String nome){
-        this.nome = nome;
     }
     
     public String getTelefone(){
         return telefone;
     }
 
-    public void setTelefone(String telefone){
-        this.telefone = telefone;
-    }
-
     public String getTelefoneEmergencia(){
         return telefoneEmergencia;
-    }
-
-    public void setTelefoneEmergencia(String telefoneEmergencia){
-        this.telefoneEmergencia = telefoneEmergencia;
     }
     
     public Endereco getEndereco(){
     	return e;
-    }
-    public void setEndereco(Endereco endereco){
-    	this.e = endereco;
     }
 
     @Override
